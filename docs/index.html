@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MOSAMONI</title>
+<meta name="description" content="모니터마다 다른 바탕화면을 걸고, 모니터마다 따로 도는 슬라이드쇼를 돌리는 Windows 앱.">
+<meta property="og:title" content="MOSAMONI">
+<meta property="og:description" content="모니터마다 다른 바탕화면. 모니터마다 따로 도는 슬라이드쇼.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* ── 색 ─────────────────────────────────────────────────────────
+   캘리브레이션 화면을 옮겨 왔다. 중립 회색을 기준으로 두고,
+   강조색 하나만 따뜻한 쪽(앱의 "빛 강조")으로 뺀다.
+   기본은 밝은 쪽. 어두운 쪽은 토큰만 다시 정의한다. */
+:root {
+  --bg:        #EDF0F4;
+  --surface:   #FFFFFF;
+  --surface-2: #F6F8FA;
+  --ink:       #11161D;
+  --muted:     #58636F;
+  --faint:     #636D78;
+  --line:      #DAE0E7;
+  --accent:    #AC531F;
+  --accent-bg: #FBEFE7;
+  --on-accent: #FFFFFF;
+  --warn-bg:   #FDF6E8;
+  --warn-line: #E8D4A6;
+  --shadow:    0 1px 2px rgba(17,22,29,.05), 0 8px 24px rgba(17,22,29,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:        #0C1014;
+    --surface:   #151A21;
+    --surface-2: #1B222B;
+    --ink:       #E7ECF2;
+    --muted:     #9BA5B1;
+    --faint:     #808B9A;
+    --line:      #262E38;
+    --accent:    #F0904E;
+    --accent-bg: #2A1D14;
+    --on-accent: #16110C;
+    --warn-bg:   #241E12;
+    --warn-line: #4A3D22;
+    --shadow:    0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"] {
+  --bg:#0C1014; --surface:#151A21; --surface-2:#1B222B; --ink:#E7ECF2;
+  --muted:#9BA5B1; --faint:#808B9A; --line:#262E38; --accent:#F0904E;
+  --accent-bg:#2A1D14; --on-accent:#16110C; --warn-bg:#241E12; --warn-line:#4A3D22;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "IBM Plex Sans KR", system-ui, -apple-system, "Malgun Gothic", sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 940px; margin: 0 auto; padding: 0 24px; }
+
+h1, h2, h3 { text-wrap: balance; line-height: 1.3; margin: 0; }
+
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, .btn:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px;
+}
+
+/* 모니터 라벨처럼 보이는 작은 글자. 한글은 이 글꼴에 없으니 영문·숫자에만 쓴다 */
+.mono {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.eyebrow {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--faint); margin: 0 0 10px;
+}
+
+/* ── 머리 ──────────────────────────────────────────────────── */
+.hero { padding: 72px 0 8px; text-align: center; }
+.hero img {
+  width: 128px; height: 128px; display: block; margin: 0 auto 22px;
+  image-rendering: auto;
+}
+.hero h1 {
+  font-size: clamp(38px, 7vw, 60px); font-weight: 700; letter-spacing: -.02em;
+}
+.hero .tag {
+  margin: 14px auto 0; max-width: 34em; font-size: clamp(16px, 2.4vw, 19px);
+  color: var(--muted);
+}
+.hero .ver { margin-top: 18px; font-size: 13px; color: var(--faint); }
+
+/* ── 내려받기 ──────────────────────────────────────────────── */
+.card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 14px; box-shadow: var(--shadow);
+}
+.download {
+  margin: 34px 0 8px; padding: 30px; text-align: center;
+  position: relative; overflow: hidden;
+}
+/* 모니터 위쪽 테두리에서 새어 나오는 빛 한 줄 */
+.download::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: .55;
+}
+.btn {
+  display: inline-block; background: var(--accent); color: var(--on-accent);
+  font-weight: 600; font-size: 17px; text-decoration: none;
+  padding: 15px 34px; border-radius: 10px;
+  transition: transform .12s ease, filter .12s ease;
+}
+.btn:hover { filter: brightness(1.07); transform: translateY(-1px); }
+.filemeta { margin-top: 14px; font-size: 13.5px; color: var(--faint); }
+.btn-ghost {
+  display: inline-block; margin-top: 18px;
+  color: var(--accent); background: transparent;
+  border: 1px solid var(--accent); border-radius: 10px;
+  font-weight: 600; font-size: 15px; text-decoration: none;
+  padding: 11px 26px;
+  transition: background-color .12s ease;
+}
+.btn-ghost:hover { background: var(--accent-bg); }
+.btn-ghost:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.subnote { margin-top: 6px; font-size: 14px; color: var(--muted); }
+
+/* ── 경고 안내 ─────────────────────────────────────────────── */
+.notices { margin: 22px 0 0; padding: 22px 24px; background: var(--warn-bg);
+           border: 1px solid var(--warn-line); border-radius: 14px; text-align: left; }
+.notices > p:first-child { margin: 0 0 4px; font-weight: 600; }
+.notices > .lead { margin: 0 0 16px; font-size: 14.5px; color: var(--muted); }
+.notice + .notice { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--warn-line); }
+.notice h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.notice p { margin: 0; font-size: 14.5px; color: var(--muted); }
+.notice blockquote {
+  margin: 10px 0; padding: 10px 14px; border-left: 3px solid var(--warn-line);
+  background: var(--surface); border-radius: 0 8px 8px 0;
+  font-size: 13.5px; color: var(--muted);
+}
+kbd {
+  font-family: "IBM Plex Mono", monospace; font-size: 12.5px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: 5px; padding: 2px 7px; color: var(--ink);
+}
+
+/* ── 본문 ──────────────────────────────────────────────────── */
+section { padding: 56px 0; }
+section > h2 {
+  font-size: 13px; font-family: "IBM Plex Sans KR", sans-serif; font-weight: 600;
+  letter-spacing: .12em; color: var(--faint); text-transform: uppercase;
+  margin-bottom: 26px; padding-bottom: 12px; border-bottom: 1px solid var(--line);
+}
+
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+@media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+
+.feature { padding: 24px; }
+.feature h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+.feature p { margin: 0; font-size: 14.5px; color: var(--muted); }
+.feature ul { margin: 10px 0 0; padding-left: 18px; font-size: 14.5px; color: var(--muted); }
+.feature li { margin: 3px 0; }
+.feature em { color: var(--ink); font-style: normal; font-weight: 500; }
+
+/* 정직하게 적어 두는 제약. 기능과 섞이면 안 되므로 따로 뺀다 */
+.limit { padding: 22px 24px; background: var(--surface-2); border: 1px solid var(--line);
+         border-radius: 14px; }
+.limit + .limit { margin-top: 14px; }
+.limit h3 { font-size: 15.5px; font-weight: 600; margin-bottom: 6px; }
+.limit p { margin: 0; font-size: 14.5px; color: var(--muted); }
+
+.support { padding: 26px; }
+.support p { margin: 0; font-size: 15px; color: var(--muted); max-width: 46em; }
+
+.specs { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+.specs th, .specs td { text-align: left; padding: 13px 4px; border-bottom: 1px solid var(--line); }
+.specs th { width: 34%; font-weight: 500; color: var(--muted); }
+.specs tr:last-child th, .specs tr:last-child td { border-bottom: 0; }
+
+footer { padding: 44px 0 64px; border-top: 1px solid var(--line); margin-top: 20px; }
+.footlinks { display: flex; flex-wrap: wrap; gap: 22px; font-size: 14.5px; }
+.copy { margin-top: 20px; font-size: 13px; color: var(--faint); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="hero">
+    <img src="logo.png" alt="MOSAMONI 아이콘 — 서로 다른 바탕화면을 띄운 모니터 여섯 대">
+    <h1>MOSAMONI</h1>
+    <p class="tag">모니터마다 <strong>다른 바탕화면</strong>을 걸고,<br>모니터마다 <strong>따로 도는 슬라이드쇼</strong>를 돌리는 Windows 앱</p>
+    <p class="ver"><span class="mono">v1.0.0</span> · <span class="mono">Windows 10 / 11 (x64)</span> · MIT</p>
+  </header>
+
+  <div class="card download">
+    <a class="btn" href="https://drive.google.com/file/d/1ZtijGwx5WX195aouzsBKqSpvBxcKUBYh/view?usp=sharing">설치 파일 내려받기</a>
+    <p class="filemeta"><span class="mono">MOSAMONI-Setup-1.0.0.exe</span> · 75MB · Google Drive</p>
+    <p class="subnote">설치할 때만 관리자 권한이 필요합니다. <strong>앱 자체는 승격 없이 돕니다.</strong></p>
+
+    <div class="notices">
+      <p>받고 설치할 때 경고가 두 번 뜹니다</p>
+      <p class="lead">둘 다 정상입니다. 파일이 잘못된 것이 아닙니다.</p>
+
+      <div class="notice">
+        <h3>1. 구글 드라이브 — 바이러스 검사를 못 한다는 안내</h3>
+        <blockquote>Google 드라이브에서 이 파일의 바이러스 여부를 검사할 수 없습니다. 그래도 다운로드하시겠습니까?</blockquote>
+        <p>구글 드라이브는 <strong>25MB가 넘는 파일을 검사하지 않습니다.</strong> 이 설치 파일은 75MB라
+        크기 때문에 검사에서 빠지는 것이지, 파일에 문제가 있다는 뜻이 아닙니다.
+        <kbd>다운로드</kbd>를 누르시면 됩니다.</p>
+      </div>
+
+      <div class="notice">
+        <h3>2. Windows — “Windows의 PC 보호”</h3>
+        <blockquote>Microsoft Defender SmartScreen에서 인식할 수 없는 앱의 시작을 차단했습니다.</blockquote>
+        <p><kbd>추가 정보</kbd> → <kbd>실행</kbd>을 누르면 진행됩니다.
+        <strong>코드 서명 인증서가 없어서</strong> 뜨는 것으로, 서명이 없는 모든 설치 파일에
+        똑같이 나타납니다. 받은 곳이 어디든 마찬가지입니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <h2>무엇을 하는가</h2>
+    <div class="grid">
+
+      <div class="card feature">
+        <p class="eyebrow">Wallpaper</p>
+        <h3>모니터마다 다른 바탕화면</h3>
+        <p>Windows 가 정식으로 제공하는 방법으로 모니터별로 따로 겁니다.
+        레지스트리를 건드리지 않습니다.</p>
+      </div>
+
+      <div class="card feature">
+        <p class="eyebrow">Slideshow</p>
+        <h3>모니터마다 따로 도는 슬라이드쇼</h3>
+        <ul>
+          <li>폴더를 지정하면 순서대로 또는 무작위로 돌립니다</li>
+          <li>간격을 모니터마다 따로 정합니다</li>
+          <li><em>이전 / 다음</em>으로 즉시 넘깁니다. 멈춘 상태에서도 됩니다</li>
+          <li>껐다 켜도 <em>보던 자리에서 이어집니다</em></li>
+          <li>모든 모니터가 같은 번째 장을 함께 넘기게 맞출 수 있습니다</li>
+        </ul>
+      </div>
+
+      <div class="card feature">
+        <p class="eyebrow">Screen saver</p>
+        <h3>화면 보호기</h3>
+        <p>모든 모니터에 동시에 뜨고 부드럽게 넘어갑니다. Windows 설정의 화면 보호기 목록에
+        정식으로 등록되고 미리보기도 나옵니다. 모니터마다 다른 폴더를 쓸 수 있습니다.</p>
+        <ul><li>앱이 꺼져 있으면 화면 보호기도 뜨지 않습니다. 앱을 끄면 정말 꺼지는 게 맞다고 보았습니다</li></ul>
+      </div>
+
+      <div class="card feature">
+        <p class="eyebrow">Layout</p>
+        <h3>실물 비율 배치 편집기</h3>
+        <ul>
+          <li><em>EDID에서 모니터의 물리적 크기를 읽어 인치까지 반영합니다.</em>
+              27인치 옆의 24인치가 화면에서도 그만큼 크게 보입니다</li>
+          <li>EDID가 없으면 FHD 24인치로 잡고, <em>우클릭 → 크기 입력</em>으로 고칩니다</li>
+          <li>빈 배경을 끌면 화면이 따라오고, 휠로 확대·축소합니다</li>
+        </ul>
+      </div>
+
+      <div class="card feature">
+        <p class="eyebrow">Look</p>
+        <h3>화면 보정</h3>
+        <p>바탕화면과 화면 보호기에 각각 따로 겁니다. 보정 창에서 크게 보며 조절하고,
+        저장을 눌러야 반영됩니다.</p>
+        <ul>
+          <li>색 보정 — 원본 · 흑백 · 흑백(강한 대비) · 느와르 · 세피아</li>
+          <li>밝기와 빛 강조는 <em>2D 패널</em>에서 한 점을 찍어 한 번에 잡습니다</li>
+          <li>색감 유지 — 밝기를 낮출 때 빠지는 채도를 되살립니다</li>
+        </ul>
+      </div>
+
+      <div class="card feature">
+        <p class="eyebrow">Etc</p>
+        <h3>그 밖에</h3>
+        <ul>
+          <li>테마 3종 — 캘리브레이션 · Windows 기본 · 웜 페이퍼</li>
+          <li>언어 4종 — 한국어 · 영어 · 일본어 · 중국어</li>
+          <li>창 투명도 — 실제로 뒤가 비칩니다</li>
+          <li>트레이 상주, Windows 시작 시 자동 실행</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>알아 둘 것</h2>
+
+    <div class="limit">
+      <h3>맞춤 방식은 모니터마다 다르게 줄 수 없습니다</h3>
+      <p>Windows 가 모든 모니터에 한꺼번에 적용하는 전역 설정이라 막혀 있습니다.
+      앱이 못 하는 것이 아니라 Windows 쪽에서 길이 없습니다. 맞춤 방식은 전역 항목으로 쓰세요.</p>
+    </div>
+
+    <div class="limit">
+      <h3>설정은 <span class="mono">%APPDATA%\MOSAMONI</span>에 있습니다</h3>
+      <p>프로그램을 지워도 남습니다. 제거할 때 함께 지울지 물어봅니다.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>요구 사항</h2>
+    <table class="specs">
+      <tbody>
+        <tr><th>운영체제</th><td class="mono">Windows 10 / 11 (x64)</td></tr>
+        <tr><th>런타임</th><td>필요 없음 — <span class="mono">.NET 8</span>을 포함해 배포합니다</td></tr>
+        <tr><th>권한</th><td>설치할 때만 관리자. 실행은 일반 권한</td></tr>
+        <tr><th>이미지 형식</th><td class="mono">JPG · JPEG · PNG · BMP · GIF · TIFF</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>후원</h2>
+    <div class="card support">
+      <p>MOSAMONI는 무료이고 앞으로도 무료입니다.
+      쓰시다가 마음이 동하시면 여기로 보내실 수 있습니다.
+      보내지 않으셔도 기능은 하나도 잠기지 않습니다.</p>
+      <a class="btn-ghost" href="https://donatr.ee/bulsajyo">후원하기</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footlinks">
+      <a href="https://github.com/bulsajyo/MOSAMONI">GitHub 저장소</a>
+      <a href="https://github.com/bulsajyo/MOSAMONI/issues">문제 알리기</a>
+      <a href="https://drive.google.com/file/d/1ZtijGwx5WX195aouzsBKqSpvBxcKUBYh/view?usp=sharing">내려받기</a>
+      <a href="https://donatr.ee/bulsajyo">후원</a>
+    </div>
+    <p class="copy">
+      문제가 생기면 <span class="mono">%APPDATA%\MOSAMONI\debug_log.txt</span>를 함께 알려 주세요.<br>
+SixLabors.ImageSharp (Apache-2.0) · Newtonsoft.Json (MIT) 를 사용합니다.<br>
+      bulsajyo
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>
