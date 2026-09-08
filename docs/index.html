@@ -182,6 +182,19 @@ section > h2 {
 .limit h3 { font-size: 15.5px; font-weight: 600; margin-bottom: 6px; }
 .limit p { margin: 0; font-size: 14.5px; color: var(--muted); }
 
+/* 사용 예시. 그림이 주인공이므로 카드 안쪽 여백을 얇게 준다. */
+.shot { margin: 0; }
+.shot img {
+  display: block; width: 100%; height: auto;
+  border-radius: 10px;
+}
+.shot figcaption {
+  margin-top: 16px; font-size: 14px; color: var(--muted);
+}
+.shot .credit {
+  display: block; margin-top: 8px; font-size: 12.5px; color: var(--faint);
+}
+
 .support { padding: 26px; }
 .support p { margin: 0; font-size: 15px; color: var(--muted); max-width: 46em; }
 
@@ -236,6 +249,20 @@ footer { padding: 44px 0 64px; border-top: 1px solid var(--line); margin-top: 20
       </div>
     </div>
   </div>
+
+  <section>
+    <h2>이렇게 보입니다</h2>
+    <figure class="shot">
+      <img src="example-desktop.webp" width="1830" height="924" loading="lazy"
+           alt="가로 31.5인치 모니터와 세로 23.8인치 모니터에 같은 작품의 다른 판본이 각각 걸려 있는 모습">
+      <figcaption>
+        31.5″ 가로 모니터와 23.8″ 세로 모니터에 <strong>서로 다른 이미지</strong>가 걸려 있습니다.
+        각각 다른 폴더를 보고 있어 슬라이드쇼도 따로 돕니다.
+        두 모니터의 크기 차이는 <strong>실제 물리 크기 그대로</strong>입니다.
+        <span class="credit">바탕화면 이미지: 명조(Wuthering Waves) © Kuro Games 공식 배포 월페이퍼</span>
+      </figcaption>
+    </figure>
+  </section>
 
   <section>
     <h2>무엇을 하는가</h2>
