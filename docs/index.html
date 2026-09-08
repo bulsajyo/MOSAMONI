@@ -195,6 +195,27 @@ section > h2 {
   display: block; margin-top: 8px; font-size: 12.5px; color: var(--faint);
 }
 
+/* 쓰는 법. 번호는 실제로 순서가 있으므로 붙인다 (설정 -> 지정 -> 보정). */
+.step { margin: 0; padding: 0; overflow: hidden; }
+.step + .step { margin-top: 22px; }
+.step figcaption { padding: 20px 24px; }
+.step .no {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 12px; letter-spacing: .1em; color: var(--accent);
+  display: block; margin-bottom: 6px;
+}
+.step h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+.step p { margin: 0; font-size: 14.5px; color: var(--muted); }
+.step img { display: block; width: 100%; height: auto; border-bottom: 1px solid var(--line); }
+
+/* 보정 전후는 나란히 놓아야 차이가 보인다 */
+.ba { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+@media (max-width: 720px) { .ba { grid-template-columns: 1fr; } }
+.ba figure { margin: 0; }
+.ba img { display: block; width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--line); }
+.ba figcaption { padding: 10px 2px 0; font-size: 13.5px; color: var(--muted); }
+.ba strong { color: var(--ink); }
+
 .support { padding: 26px; }
 .support p { margin: 0; font-size: 15px; color: var(--muted); max-width: 46em; }
 
@@ -260,6 +281,66 @@ footer { padding: 44px 0 64px; border-top: 1px solid var(--line); margin-top: 20
         각각 다른 폴더를 보고 있어 슬라이드쇼도 따로 돕니다.
         두 모니터의 크기 차이는 <strong>실제 물리 크기 그대로</strong>입니다.
         <span class="credit">바탕화면 이미지: 명조(Wuthering Waves) © Kuro Games 공식 배포 월페이퍼</span>
+      </figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>쓰는 법</h2>
+
+    <figure class="card step">
+      <img src="screen-main.webp" width="1200" height="800" loading="lazy"
+           alt="메인 화면. 가운데에 모니터 배치가 실물 비율로 그려져 있고 아래에 슬라이드쇼와 화면 보호기 조작 버튼이 있다.">
+      <figcaption>
+        <span class="no">01</span>
+        <h3>모니터 배치를 실제 책상과 맞춥니다</h3>
+        <p>모니터를 끌어서 옮기면 됩니다. 크기는 모니터에서 읽어 온 실물 치수라
+        27인치 옆의 24인치가 화면에서도 그만큼 작게 보입니다.
+        아래에서 슬라이드쇼와 화면 보호기를 켜고 끕니다.</p>
+      </figcaption>
+    </figure>
+
+    <figure class="card step">
+      <img src="screen-wallpaper.webp" width="1106" height="773" loading="lazy"
+           alt="바탕화면 설정 창. 왼쪽에 모니터별 폴더와 간격, 가운데에 전역 설정, 오른쪽에 미리보기가 있다.">
+      <figcaption>
+        <span class="no">02</span>
+        <h3>모니터마다 폴더를 지정합니다</h3>
+        <p>모니터 카드마다 폴더를 하나씩 지정합니다. 간격과 재생 방식도 따로 줄 수 있고,
+        전역 설정을 그대로 쓰게 둘 수도 있습니다.
+        오른쪽 미리보기로 어느 모니터에 무엇이 걸릴지 미리 봅니다.</p>
+      </figcaption>
+    </figure>
+
+    <figure class="card step">
+      <img src="screen-screensaver.webp" width="986" height="733" loading="lazy"
+           alt="화면 보호기 설정 창. 대기 시간, 모니터별 전용 폴더, 전환 간격과 페이드 시간, 화면 보정 요약이 있다.">
+      <figcaption>
+        <span class="no">03</span>
+        <h3>화면 보호기도 따로 정합니다</h3>
+        <p>바탕화면과 같은 폴더를 써도 되고, 모니터마다 전용 폴더를 따로 줘도 됩니다.
+        대기 시간과 페이드 시간을 정하고 저장하면 Windows 화면 보호기 목록에 등록됩니다.</p>
+      </figcaption>
+    </figure>
+
+    <figure class="card step">
+      <figcaption>
+        <span class="no">04</span>
+        <h3>밝기와 빛 강조를 한 점으로 잡습니다</h3>
+        <p>왼쪽 아래 2D 패널에서 점 하나를 옮기면 밝기와 빛 강조가 함께 정해집니다.
+        같은 그림도 이만큼 달라집니다. 저장을 눌러야 반영되므로 마음껏 만져 봐도 됩니다.</p>
+        <div class="ba">
+          <figure>
+            <img src="screen-look-dark.webp" width="1166" height="813" loading="lazy"
+                 alt="밝기를 낮추고 빛 강조를 높인 보정 결과. 어둡고 대비가 강하다.">
+            <figcaption><strong>밝기 −25% · 빛 강조 90%</strong><br>어둡게 가라앉히고 밝은 부분만 번지게</figcaption>
+          </figure>
+          <figure>
+            <img src="screen-look-bright.webp" width="1166" height="813" loading="lazy"
+                 alt="밝기를 높이고 빛 강조를 낮춘 보정 결과. 전체적으로 밝고 부드럽다.">
+            <figcaption><strong>밝기 +65% · 빛 강조 40%</strong><br>전체를 밝게 올려 부드럽게</figcaption>
+          </figure>
+        </div>
       </figcaption>
     </figure>
   </section>
