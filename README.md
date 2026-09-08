@@ -40,7 +40,10 @@
 각각 다른 폴더를 보고 있어 슬라이드쇼도 따로 돕니다.
 두 모니터의 크기 차이는 **실제 물리 크기 그대로**입니다.
 
-<sub>바탕화면 이미지: 명조(Wuthering Waves) © Kuro Games 공식 배포 월페이퍼</sub>
+여기 쓰인 배경화면은 [명조 공식 라운지](https://game.naver.com/lounge/WutheringWaves/home)에서
+**"배경화면"** 으로 검색하면 받을 수 있습니다. 가로·세로 판본이 함께 있습니다.
+
+<sub>명조(Wuthering Waves) © Kuro Games. 이 프로그램과는 무관한 별개 저작물입니다.</sub>
 
 ---
 
